@@ -1,0 +1,20 @@
+apiVersion: security.antrea.tanzu.vmware.com/v1alpha1
+kind: ClusterNetworkPolicy
+metadata:
+  name: student-api
+spec:
+    priority: 100
+    tier: Application    
+    appliedTo:
+      - podSelector:
+          matchLabels:
+            student: api
+    ingress:
+      - action: Allow
+        from:
+          - podSelector:
+              matchLabels:
+                student: client
+        ports:
+          - protocol: TCP
+            port: http

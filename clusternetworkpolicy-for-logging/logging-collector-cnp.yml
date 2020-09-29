@@ -1,0 +1,20 @@
+apiVersion: security.antrea.tanzu.vmware.com/v1alpha1
+kind: ClusterNetworkPolicy
+metadata:
+  name: logging-collector
+spec:
+    priority: 100
+    tier: Platform 
+    appliedTo:
+      - podSelector:
+          matchLabels:
+            logging: collector
+    ingress:
+      - action: Allow
+        from:
+          - podSelector:
+              matchLabels:
+                logging: forwarder
+        ports:
+          - protocol: TCP
+            port: syslog

@@ -1,0 +1,143 @@
+apiVersion: mock.cnst.io/v1alpha1
+kind: Mock
+metadata:
+  name: ingress
+  namespace: ingress
+  labels:
+    ingress-http: proxy
+    logging: forwarder
+spec:
+  replicas: 1
+  listeners:
+    basicListeners:
+      - containerPort: 8080
+        portName: http
+        servicePort: 80  
+  callers:
+    repeating:
+      - delay: 1s
+        timeout: 3s
+        callers:
+        - url: http://logging.shared-service:514
+        - url: http://student.elearning:80
+        - url: http://teacher.elearning:80          
+        - url: http://course.elearning:80          
+        - url: http://rating.elearning:80
+---
+apiVersion: mock.cnst.io/v1alpha1
+kind: Mock
+metadata:
+  name: student
+  namespace: elearning
+  labels:
+    ingress-http: target
+    logging: forwarder
+    student: api
+spec:
+  replicas: 1
+  listeners:
+    basicListeners:
+      - containerPort: 8080
+        portName: http
+        servicePort: 80
+  callers:
+    repeating:
+      - delay: 1s
+        timeout: 3s        
+        callers:
+        - url: http://logging.shared-service:514        
+---
+apiVersion: mock.cnst.io/v1alpha1
+kind: Mock
+metadata:
+  name: teacher
+  namespace: elearning
+  labels:
+    ingress-http: target
+    logging: forwarder
+spec:
+  replicas: 1
+  listeners:
+    basicListeners:
+      - containerPort: 8080
+        portName: http
+        servicePort: 80
+  callers:
+    repeating:
+      - delay: 1s
+        timeout: 3s        
+        callers:
+        - url: http://logging.shared-service:514        
+---
+apiVersion: mock.cnst.io/v1alpha1
+kind: Mock
+metadata:
+  name: course
+  namespace: elearning
+  labels:
+    logging: forwarder
+    course: api
+    ingress-http: target
+spec:
+  replicas: 1
+  listeners:
+    basicListeners:
+      - containerPort: 8080
+        portName: http
+        servicePort: 80
+  callers:
+    repeating:
+      - delay: 1s
+        timeout: 3s        
+        callers:
+        - url: http://logging.shared-service:514        
+---
+apiVersion: mock.cnst.io/v1alpha1
+kind: Mock
+metadata:
+  name: rating
+  namespace: elearning
+  labels:
+    logging: forwarder
+    course: client
+    ingress-http: target
+spec:
+  replicas: 1
+  listeners:
+    basicListeners:
+      - containerPort: 8080
+        portName: http
+        servicePort: 80
+  callers:
+    repeating:
+      - delay: 1s
+        timeout: 3s        
+        callers:
+        - url: http://course.elearning:80
+        - url: http://billing.finance:80
+        - url: http://logging.shared-service:514
+---
+apiVersion: mock.cnst.io/v1alpha1
+kind: Mock
+metadata:
+  name: billing
+  namespace: finance
+  labels:
+    course: client
+    logging: forwarder      
+    student: client
+spec:
+  replicas: 1
+  listeners:
+    basicListeners:
+      - containerPort: 8080
+        portName: http
+        servicePort: 80
+  callers:
+    repeating:
+      - delay: 1s
+        timeout: 3s        
+        callers:
+        - url: http://logging.shared-service:514
+        - url: http://student.elearning:80
+        - url: http://course.elearning:80        

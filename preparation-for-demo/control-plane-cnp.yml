@@ -1,0 +1,67 @@
+apiVersion: security.antrea.tanzu.vmware.com/v1alpha1
+kind: ClusterNetworkPolicy
+metadata:
+  name: control-plane-dns
+spec:
+    priority: 100
+    tier: Platform      
+    appliedTo:
+      - namespaceSelector:
+          matchLabels:
+            env: app
+    ingress:
+      - action: Allow
+        from:
+          - podSelector:
+              matchLabels:
+                k8s-app: kube-dns
+        ports:
+          - protocol: UDP
+            port: dns
+          - protocol: TCP
+            port: dns-tcp            
+    egress:
+      - action: Allow
+        to:
+          - podSelector:
+              matchLabels:
+                k8s-app: kube-dns
+        ports:
+          - protocol: UDP
+            port: dns
+          - protocol: TCP
+            port: dns-tcp
+---
+apiVersion: security.antrea.tanzu.vmware.com/v1alpha1
+kind: ClusterNetworkPolicy
+metadata:
+  name: control-plane-mock-ui
+spec:
+    priority: 100
+    tier: Platform      
+    appliedTo:
+      - namespaceSelector:
+          matchLabels:
+            env: app
+    ingress:
+      - action: Allow
+        from:
+          - podSelector:
+              matchLabels:
+                app: mock-ui                
+        ports:
+          - protocol: TCP
+            port: http
+          - protocol: TCP
+            port: syslog
+    egress:
+      - action: Allow
+        to:
+          - podSelector:
+              matchLabels:
+                app: mock-ui                
+        ports:
+          - protocol: TCP
+            port: http
+          - protocol: TCP
+            port: syslog

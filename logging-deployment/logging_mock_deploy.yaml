@@ -1,0 +1,14 @@
+apiVersion: mock.cnst.io/v1alpha1
+kind: Mock
+metadata:
+  name: logging
+  namespace: shared-service
+  labels:
+    logging: server
+spec:
+  replicas: 1
+  listeners:
+    basicListeners:
+      - containerPort: 8514
+        portName: syslog
+        servicePort: 514

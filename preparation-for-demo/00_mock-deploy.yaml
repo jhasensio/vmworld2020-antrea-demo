@@ -1,0 +1,379 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    control-plane: controller-manager
+  name: mock-system
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.2.5
+  creationTimestamp: null
+  name: mocks.mock.cnst.io
+spec:
+  group: mock.cnst.io
+  names:
+    kind: Mock
+    listKind: MockList
+    plural: mocks
+    singular: mock
+  scope: Namespaced
+  validation:
+    openAPIV3Schema:
+      description: Mock is the Schema for the mocks API
+      properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation
+            of an object. Servers should convert recognized schemas to the latest
+            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+          type: string
+        kind:
+          description: 'Kind is a string value representing the REST resource this
+            object represents. Servers may infer this from the endpoint the client
+            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
+        spec:
+          description: MockSpec defines the desired state of Mock
+          properties:
+            callers:
+              description: Callers are all the callers that are self initiated.
+              properties:
+                repeating:
+                  items:
+                    description: RepeatingCaller repeats a list of calls and delays
+                      delay milliseconds.
+                    properties:
+                      callers:
+                        items:
+                          description: BasicCaller represents the next node to call
+                            in the service graph.
+                          properties:
+                            url:
+                              type: string
+                          type: object
+                        type: array
+                      delay:
+                        type: string
+                      timeout:
+                        type: string
+                    type: object
+                  type: array
+              type: object
+            listeners:
+              description: Listeners holds all the request listeners.
+              properties:
+                basicListeners:
+                  items:
+                    description: BasicListener listens for any HTTP request on a given
+                      port.
+                    properties:
+                      callers:
+                        description: Callers is a list of basic calls to perform on
+                          inbound request.
+                        items:
+                          description: BasicCaller represents the next node to call
+                            in the service graph.
+                          properties:
+                            url:
+                              type: string
+                          type: object
+                        type: array
+                      containerPort:
+                        description: ContainerPort to listen on.
+                        type: integer
+                      portName:
+                        description: PortName is a name of Container port
+                        type: string
+                      servicePort:
+                        description: ServicePort to listen on
+                        type: integer
+                    type: object
+                  type: array
+              type: object
+            replicas:
+              description: Replicas specifies how many instances to create.
+              format: int32
+              type: integer
+          type: object
+        status:
+          description: MockStatus defines the observed state of Mock
+          properties:
+            connections:
+              items:
+                description: Connection result from this mock
+                properties:
+                  destination:
+                    description: Destination of the connection
+                    type: string
+                  source:
+                    description: Source of the connection
+                    type: string
+                  status:
+                    description: Status of the connection
+                    type: string
+                type: object
+              type: array
+          type: object
+      type: object
+  version: v1alpha1
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mock-leader-election-role
+  namespace: mock-system
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - configmaps/status
+  verbs:
+  - get
+  - update
+  - patch
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: mock-manager-role
+rules:
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - serviceaccounts
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - services
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mock.cnst.io
+  resources:
+  - mocks
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mock.cnst.io
+  resources:
+  - mocks/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - rolebindings
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: mock-proxy-role
+rules:
+- apiGroups:
+  - authentication.k8s.io
+  resources:
+  - tokenreviews
+  verbs:
+  - create
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: mock-metrics-reader
+rules:
+- nonResourceURLs:
+  - /metrics
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mock-leader-election-rolebinding
+  namespace: mock-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mock-leader-election-role
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: mock-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: mock-manager-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mock-manager-role
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: mock-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: mock-proxy-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mock-proxy-role
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: mock-system
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    control-plane: controller-manager
+  name: mock-controller-manager-metrics-service
+  namespace: mock-system
+spec:
+  ports:
+  - name: https
+    port: 8443
+    targetPort: https
+  selector:
+    control-plane: controller-manager
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    control-plane: controller-manager
+  name: mock-controller-manager
+  namespace: mock-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      control-plane: controller-manager
+  template:
+    metadata:
+      labels:
+        control-plane: controller-manager
+    spec:
+      containers:
+      - args:
+        - --secure-listen-address=0.0.0.0:8443
+        - --upstream=http://127.0.0.1:8080/
+        - --logtostderr=true
+        - --v=10
+        image: gcr.io/kubebuilder/kube-rbac-proxy:v0.5.0
+        name: kube-rbac-proxy
+        ports:
+        - containerPort: 8443
+          name: https
+      - args:
+        - --metrics-addr=127.0.0.1:8080
+        - --enable-leader-election
+        command:
+        - /manager
+        image: ytsuboi/mockmgr:vmworld2020
+        name: manager
+        resources:
+          limits:
+            cpu: 100m
+            memory: 30Mi
+          requests:
+            cpu: 100m
+            memory: 20Mi
+      terminationGracePeriodSeconds: 10

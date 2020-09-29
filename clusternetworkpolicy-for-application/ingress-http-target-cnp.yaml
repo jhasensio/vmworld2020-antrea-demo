@@ -1,0 +1,20 @@
+apiVersion: security.antrea.tanzu.vmware.com/v1alpha1
+kind: ClusterNetworkPolicy
+metadata:
+  name: ingress-http-target
+spec:
+    priority: 100
+    tier: Platform
+    appliedTo:
+      - podSelector:
+          matchLabels:
+            ingress-http: target     
+    ingress:
+      - action: Allow
+        from:
+          - podSelector:
+              matchLabels:
+                ingress-http: proxy
+        ports:
+          - protocol: TCP
+            port: 8080
