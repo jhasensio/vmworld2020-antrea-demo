@@ -10,7 +10,6 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.2.5
-  creationTimestamp: null
   name: mocks.mock.cnst.io
 spec:
   group: mock.cnst.io
@@ -20,110 +19,109 @@ spec:
     plural: mocks
     singular: mock
   scope: Namespaced
-  validation:
-    openAPIV3Schema:
-      description: Mock is the Schema for the mocks API
-      properties:
-        apiVersion:
-          description: 'APIVersion defines the versioned schema of this representation
-            of an object. Servers should convert recognized schemas to the latest
-            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
-          type: string
-        kind:
-          description: 'Kind is a string value representing the REST resource this
-            object represents. Servers may infer this from the endpoint the client
-            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
-          type: string
-        metadata:
-          type: object
-        spec:
-          description: MockSpec defines the desired state of Mock
-          properties:
-            callers:
-              description: Callers are all the callers that are self initiated.
-              properties:
-                repeating:
-                  items:
-                    description: RepeatingCaller repeats a list of calls and delays
-                      delay milliseconds.
-                    properties:
-                      callers:
-                        items:
-                          description: BasicCaller represents the next node to call
-                            in the service graph.
-                          properties:
-                            url:
-                              type: string
-                          type: object
-                        type: array
-                      delay:
-                        type: string
-                      timeout:
-                        type: string
-                    type: object
-                  type: array
-              type: object
-            listeners:
-              description: Listeners holds all the request listeners.
-              properties:
-                basicListeners:
-                  items:
-                    description: BasicListener listens for any HTTP request on a given
-                      port.
-                    properties:
-                      callers:
-                        description: Callers is a list of basic calls to perform on
-                          inbound request.
-                        items:
-                          description: BasicCaller represents the next node to call
-                            in the service graph.
-                          properties:
-                            url:
-                              type: string
-                          type: object
-                        type: array
-                      containerPort:
-                        description: ContainerPort to listen on.
-                        type: integer
-                      portName:
-                        description: PortName is a name of Container port
-                        type: string
-                      servicePort:
-                        description: ServicePort to listen on
-                        type: integer
-                    type: object
-                  type: array
-              type: object
-            replicas:
-              description: Replicas specifies how many instances to create.
-              format: int32
-              type: integer
-          type: object
-        status:
-          description: MockStatus defines the observed state of Mock
-          properties:
-            connections:
-              items:
-                description: Connection result from this mock
-                properties:
-                  destination:
-                    description: Destination of the connection
-                    type: string
-                  source:
-                    description: Source of the connection
-                    type: string
-                  status:
-                    description: Status of the connection
-                    type: string
-                type: object
-              type: array
-          type: object
-      type: object
-  version: v1alpha1
   versions:
   - name: v1alpha1
     served: true
     storage: true
+    schema:
+      openAPIV3Schema:
+        description: Mock is the Schema for the mocks API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: MockSpec defines the desired state of Mock
+            properties:
+              callers:
+                description: Callers are all the callers that are self initiated.
+                properties:
+                  repeating:
+                    items:
+                      description: RepeatingCaller repeats a list of calls and delays
+                        delay milliseconds.
+                      properties:
+                        callers:
+                          items:
+                            description: BasicCaller represents the next node to call
+                              in the service graph.
+                            properties:
+                              url:
+                                type: string
+                            type: object
+                          type: array
+                        delay:
+                          type: string
+                        timeout:
+                          type: string
+                      type: object
+                    type: array
+                type: object
+              listeners:
+                description: Listeners holds all the request listeners.
+                properties:
+                  basicListeners:
+                    items:
+                      description: BasicListener listens for any HTTP request on a given
+                        port.
+                      properties:
+                        callers:
+                          description: Callers is a list of basic calls to perform on
+                            inbound request.
+                          items:
+                            description: BasicCaller represents the next node to call
+                              in the service graph.
+                            properties:
+                              url:
+                                type: string
+                            type: object
+                          type: array
+                        containerPort:
+                          description: ContainerPort to listen on.
+                          type: integer
+                        portName:
+                          description: PortName is a name of Container port
+                          type: string
+                        servicePort:
+                          description: ServicePort to listen on
+                          type: integer
+                      type: object
+                    type: array
+                type: object
+              replicas:
+                description: Replicas specifies how many instances to create.
+                format: int32
+                type: integer
+            type: object
+          status:
+            description: MockStatus defines the observed state of Mock
+            properties:
+              connections:
+                items:
+                  description: Connection result from this mock
+                  properties:
+                    destination:
+                      description: Destination of the connection
+                      type: string
+                    source:
+                      description: Source of the connection
+                      type: string
+                    status:
+                      description: Status of the connection
+                      type: string
+                  type: object
+                type: array
+            type: object
+        type: object
 status:
   acceptedNames:
     kind: ""
